@@ -35,9 +35,29 @@ export const Bookstore = () => {
     setIsNew(false)
     setIsPopupVisible(true);
   }
+  
+  const handleDownloadBooksAsCSV = () => {
+    if (bookList.length === 0) {
+      alert('No books to download');
+      return;
+    }
+    const books = bookList;
+    const replacer = (key, value) => value === null ? '' : value;
+    const header = Object.keys(books[0]);
+    let csv = books.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','));
+    csv.unshift(header.join(','));
+    csv = csv.join('\r\n');
+    const csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+    const link = document.createElement('a');
+    link.setAttribute('href', csvData);
+    link.setAttribute('download', 'books.csv');
+    link.click();
+  }
+
   return (
     <div>
         <button onClick={handleAddButtonClick}>Add Book</button>
+        <button onClick={handleDownloadBooksAsCSV}>Download Books as CSV</button>
         {isPopupVisible && <Popup isNew={isNew} book = {currentBook} setCurrentBook={setCurrentBook} add={addMethod} update={updateMethod} close={()=> setIsPopupVisible(false)}/>}
         {bookList.length>0 && bookList.map((book, i) => <Book key={i} content={book} update={openPopupForUpdate} delete={deleteMethod}/>)}    
     </div>
